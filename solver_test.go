@@ -60,15 +60,13 @@ func TestGraph_Solve(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		for i := 0; i < 10; i++ {
-			graph := NewGraph(testCase.gotVerticesCount)
-			for _, connection := range testCase.gotConnections {
-				graph.Connect(connection.from, connection.to, connection.color)
-			}
-
-			actual := graph.Solve(testCase.gotFrom, testCase.gotTo)
-
-			assert.Check(t, is.DeepEqual(actual, testCase.want))
+		graph := NewGraph(testCase.gotVerticesCount)
+		for _, connection := range testCase.gotConnections {
+			graph.Connect(connection.from, connection.to, connection.color)
 		}
+
+		actual := graph.Solve(testCase.gotFrom, testCase.gotTo)
+
+		assert.Check(t, is.DeepEqual(actual, testCase.want))
 	}
 }

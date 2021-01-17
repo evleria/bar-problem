@@ -1,4 +1,4 @@
-module gh/evleria/bar-problem
+module github.com/evleria/bar-problem
 
 go 1.15
 

@@ -20,7 +20,6 @@ type direction struct {
 
 func NewGraph(vc int) *Graph {
 	return &Graph{
-		verticesCount: vc,
 		adjacencyList: make([][]direction, vc),
 	}
 }
@@ -35,11 +34,33 @@ func (g *Graph) Solve(from, to int) []int {
 	return g.dfs(from, Unspecified, to, visited, []int{from})
 }
 
-func (g *Graph) getDirections(from int, curColor Color) []direction {
+func (g *Graph) dfs(from int, curColor Color, dest int, visited map[direction]bool, curPath []int) []int {
+	if from == dest {
+		return curPath
+	}
+
+	curDir := direction{from, curColor}
+	visited[curDir] = true
+	for _, dir := range g.getUnvisitedDirections(from, curColor, visited) {
+		if path := g.dfs(dir.to, dir.color, dest, visited, append(curPath, dir.to)); path != nil {
+			return path
+		}
+	}
+	delete(visited, curDir)
+
+	return nil
+}
+
+func (g *Graph) getUnvisitedDirections(from int, curColor Color, visited map[direction]bool) []direction {
 	var r []direction
 	for _, dir := range g.adjacencyList[from] {
+		originalColor := dir.color
+		dir.color = applyColor(curColor, originalColor)
+		if visited[dir] {
+			continue
+		}
 
-		switch dir.color {
+		switch originalColor {
 		case Red:
 			if curColor == Unspecified || curColor == Blue {
 				r = append(r, dir)
@@ -54,28 +75,6 @@ func (g *Graph) getDirections(from int, curColor Color) []direction {
 	}
 
 	return r
-}
-
-func (g *Graph) dfs(from int, curColor Color, dest int, visited map[direction]bool, curPath []int) []int {
-	if from == dest {
-		return curPath
-	}
-
-	curDir := direction{from, curColor}
-	visited[curDir] = true
-	for _, dir := range g.getDirections(from, curColor) {
-		dir.color = applyColor(curColor, dir.color)
-		if _, ok := visited[dir]; !ok {
-			if _, ok := visited[dir]; !ok {
-				if path := g.dfs(dir.to, dir.color, dest, visited, append(curPath, dir.to)); path != nil {
-					return path
-				}
-			}
-		}
-	}
-	delete(visited, curDir)
-
-	return nil
 }
 
 func applyColor(curColor Color, targetColor Color) Color {
